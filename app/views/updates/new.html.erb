@@ -1,0 +1,46 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h1>New Update</h1>
+
+      <%= form_with(model: [@person, @update], local: true) do |form| %>
+        <% if @update.errors.any? %>
+          <div id="error_explanation" class="alert alert-danger">
+            <h2><%= pluralize(@update.errors.count, "error") %> prohibited this update from being saved:</h2>
+            <ul>
+              <% @update.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="field mb-3">
+          <%= form.label :occasion %>
+          <%= form.text_field :occasion, id: :update_occasion, class: 'form-control', list: "occasion_datalist", placeholder: "Type to search..." %>
+          <datalist id="occasion_datalist">
+            <% @recent_occasions.each do |occasion| %>
+              <option value="<%= occasion %>"></option>
+            <% end %>
+          </datalist>
+        </div>
+
+        <div class="field mb-3">
+          <%= form.label :comment_date %>
+          <%= form.date_field :comment_date, id: :update_comment_date, class: 'form-control' %>
+        </div>
+
+        <div class="field mb-3">
+          <%= form.label :content %>
+          <%= form.text_area :content, id: :update_content, class: 'form-control' %>
+        </div>
+
+        <div class="actions">
+          <%= form.submit "Next: Add Tags", class: 'btn btn-primary mb-2' %>
+        </div>
+      <% end %>
+
+      <%= link_to 'Back', person_updates_path(@update.person) %>
+    </div>
+  </div>
+</div>

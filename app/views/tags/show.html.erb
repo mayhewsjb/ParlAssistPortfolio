@@ -1,0 +1,31 @@
+<div class="container mt-4">
+  <h3>Tag - <span class="badge text-bg-primary"><%= @tag.name %></span></h3>
+  <p>All associated MPs and Updates for this tag:</p>
+
+  <% if @updates_by_person.present? %>
+    <% @updates_by_person.each_with_index do |(person, updates), index| %>
+      <div class="accordion mb-2" id="updatesAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading<%= index %>">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= index %>" aria-expanded="false" aria-controls="collapse<%= index %>">
+              <%= person.name %>
+            </button>
+          </h2>
+          <div id="collapse<%= index %>" class="accordion-collapse collapse" aria-labelledby="heading<%= index %>" data-bs-parent="#updatesAccordion">
+            <div class="accordion-body">
+              <% updates.each do |update| %>
+                <%= link_to person_update_path(person, update) do %>
+                  <p><%= update.content %> (Date: <%= update.comment_date || 'No date provided' %>)</p>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <p>No updates with this tag.</p>
+  <% end %>
+
+  <%= link_to 'Back to Tags', tags_path, class: 'btn btn-secondary ' %>
+</div>

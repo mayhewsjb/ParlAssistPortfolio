@@ -1,0 +1,240 @@
+<div class="container mt-3">
+  <h1 class="card-title"><%= @person.name %></h1>
+  <br>
+  <div class="card">
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-4 d-flex align-items-center justify-content-center ">
+          <% if @person.portrait_url.present? %>
+            <img src="<%= @person.portrait_url %>" alt="<%= @person.name %>'s portrait" style="max-width: 160px; height: auto; border-radius: 15px;" class="mb-3">
+          <% end %>
+        </div>
+        <div class="col-md-4">
+          <% if @person.government_posts.where(end_date: nil).any? %>
+            <p class="card-text"><strong>Current Government Roles:</strong>
+              <% @person.government_posts.where(end_date: nil).each_with_index do |post, index| %>
+                <%= post.name %><%= ',' unless index == @person.government_posts.where(end_date: nil).count - 1 %>
+              <% end %>
+            </p>
+          <% end %>
+          <p class="card-text"><strong>Member id:</strong> <%= @person.member_id %></p>
+          <% if @person.region && @person.region.name.present? %>
+            <p class="card-text"><strong>Region:</strong>
+              <%= link_to @person.region.name, region_path(@person.region) %>
+            </p>
+          <% else %>
+            <p class="card-text"><strong>Region:</strong> N/A</p>
+          <% end %>
+          <p class="card-text"><strong>Majority:</strong> <%= @person.majority %></p>
+          <p class="card-text"><strong>Area Rank:</strong> <%= @area_rank %> out of <%= Person.count %></p>
+          <p class="card-text mb-3"><strong>Constituency:</strong> <%= @person.constituency %></p>
+        </div>
+        <div class="col-md-4">
+          <p class="card-text"><strong>Status:</strong> <%= @person.active_status ? 'Active' : 'Not Active' %></p>
+          <p class="card-text"><strong>Installed:</strong> <%= formatted_update_time(@person.membership_start_date) %></p>
+          <% if @person.membership_end_date %>
+            <p class="card-text"><strong>End Time:</strong> <%= formatted_update_time(@person.membership_end_date) %></p>
+          <% end %>
+          <p class="card-text">
+            <strong>Email:</strong>
+            <a href="mailto:<%= @person.email %>"><%= @person.email %></a>
+          </p>
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-12 d-flex align-items-center">
+          <h5 class="mb-0">Notes:</h5>
+          <%= link_to 'Edit Notes', edit_notes_person_path(@person), class: 'btn btn-secondary btn-sm ms-2' %>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-12">
+          <div class="alert alert-info" role="alert">
+            <p class="mb-0"><%= @person.notes.presence || 'Click Edit Notes to add Notes' %></p>
+          </div>
+        </div>
+      </div>
+      <h5>Associated Tags</h5>
+      <div id="update-tags" class="mb-3">
+        <% unique_tags = @person.updates.flat_map(&:tags).uniq %>
+        <h5><% unique_tags.each do |tag| %>
+          <%= link_to tag_path(tag), class: "tag-badge" do %>
+            <span class="badge bg-primary"><%= tag.name %></span>
+          <% end %>
+        <% end %></h5>
+        <% if unique_tags.empty? %>
+          <p>No associated tags.</p>
+        <% end %>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-12 d-flex align-items-center">
+          <h5>Most Recent Updates</h5>
+          <%= link_to 'See Updates', person_updates_path(@person), class: 'btn btn-primary btn-sm mx-2 mb-2' %>
+          <%= link_to 'New Update', new_person_update_path(@person), class: 'btn btn-success btn-sm mb-2' %>
+        </div>
+        <% @person.updates.order(created_at: :desc).limit(3).each do |update| %>
+          <div class="col-md-4 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <% if update.content == "Automatic Update ** Person created **" %>
+                  <h6 class="card-subtitle mb-2 text-muted"><%= update.created_at %></h6>
+                <% else %>
+                  <h6 class="card-subtitle mb-2 text-muted"><%= update.comment_date %></h6>
+                <% end %>
+                <p class="card-text"><%= update.content %></p>
+                <% if update.occasion.present? %>
+                  <p class="card-text text-end">Occasion: <%= update.occasion %></p>
+                <% end %>
+
+                <!-- Tags Section -->
+                <div class="update-tags mt-2">
+                  <% update.tags.each do |tag| %>
+                    <%= link_to tag_path(tag), class: "tag-badge" do %>
+                      <span class="badge bg-secondary"><%= tag.name %></span>
+                    <% end %>
+                  <% end %>
+                </div>
+
+                <div class="d-flex justify-content-end mt-2">
+                  <%= link_to 'Details', [update.person, update], class: 'btn btn-secondary btn-sm' %>
+                  <% unless update.content == 'Automatic Update ** Person created **' %>
+                    <%= link_to 'Edit', edit_person_update_path(update.person, update), class: 'btn btn-primary btn-sm mx-2' %>
+                    <%= link_to 'Delete', [update.person, update], data: { turbo_method: :delete, turbo_confirm: 'Are you sure?', turbo_action: "replace", turbo_target: "person_updates_#{update.person.id}" }, class: 'btn btn-danger btn-sm' %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+
+      <div class="accordion" id="personDetailsAccordion">
+        <% if @person.government_posts.where(end_date: nil).any? %>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="currentGovernmentPostsHeader">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#currentGovernmentPosts" aria-expanded="false" aria-controls="currentGovernmentPosts">
+                Current Government Posts
+              </button>
+            </h2>
+            <div id="currentGovernmentPosts" class="accordion-collapse collapse" aria-labelledby="currentGovernmentPostsHeader" data-bs-parent="#personDetailsAccordion">
+              <div class="accordion-body">
+                <ul>
+                  <% @person.government_posts.where(end_date: nil).each do |government_post| %>
+                    <li>
+                      <%= government_post.name %> (Start Date: <%= formatted_update_time(government_post.start_date) %>)
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @person.government_posts.where.not(end_date: nil).any? %>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="pastGovernmentPostsHeader">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pastGovernmentPosts" aria-expanded="false" aria-controls="pastGovernmentPosts">
+                Past Government Posts
+              </button>
+            </h2>
+            <div id="pastGovernmentPosts" class="accordion-collapse collapse" aria-labelledby="pastGovernmentPostsHeader" data-bs-parent="#personDetailsAccordion">
+              <div class="accordion-body">
+                <ul>
+                  <% @person.government_posts.where.not(end_date: nil).each do |government_post| %>
+                    <li>
+                      <%= government_post.name %> (Start Date: <%= formatted_update_time(government_post.start_date) %>, End Date: <%= formatted_update_time(government_post.end_date) %>)
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @current_committees.any? %>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="currentCommitteesHeader">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#currentCommittees" aria-expanded="false" aria-controls="currentCommittees">
+                Current Committees
+              </button>
+            </h2>
+            <div id="currentCommittees" class="accordion-collapse collapse" aria-labelledby="currentCommitteesHeader" data-bs-parent="#personDetailsAccordion">
+              <div class="accordion-body">
+                <ul>
+                  <% @current_committees.each do |membership| %>
+                    <li>
+                      <a href="<%= committee_path(membership.committee) %>"><%= membership.committee.name %></a> (From: <%= formatted_update_time(membership.start_date) %>)
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+
+      <div class="mt-3" id="mapContainer" style="">
+        <div style="width: 100%; height: 300px; border-radius: 15px;"
+            data-controller="map"
+            data-map-api-key-value="<%= ENV['MAPBOX_API_KEY'] %>"
+            data-map-uk-coordinates-value="<%= @uk_coordinates.to_json %>"
+            data-map-constituency-coordinates-value="<%= @constituency_coordinates.to_json %>">
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <%= link_to 'Edit', edit_person_path(@person), class: 'btn btn-primary mr-2 mb-2' %>
+        <%= link_to 'Back', people_path, class: 'btn btn-secondary mr-2 mb-2' %>
+        <%# <%= link_to 'Delete', @person, data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: 'btn btn-danger' %>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const constituency = "<%= @person.constituency %>";
+  fetchConstituencyData(constituency);
+
+  const toggleMapButton = document.getElementById('toggleMapButton');
+  const mapContainer = document.getElementById('mapContainer');
+
+  toggleMapButton.addEventListener('click', () => {
+    if (mapContainer.style.display === 'none') {
+      mapContainer.style.display = 'block';
+      toggleMapButton.textContent = 'Hide Map';
+    } else {
+      mapContainer.style.display = 'none';
+      toggleMapButton.textContent = 'Show Map';
+    }
+  });
+});
+
+function fetchConstituencyData(constituency) {
+  fetch(`https://members-api.parliament.uk/api/Location/Constituency/Search?searchText=${constituency}&skip=0&take=20`)
+    .then(response => response.json())
+    .then(data => {
+      const constituencyId = data.items[0].value.id;
+      fetchConstituencyGeometry(constituencyId);
+    });
+}
+
+function fetchConstituencyGeometry(constituencyId) {
+  fetch(`https://members-api.parliament.uk/api/Location/Constituency/${constituencyId}/Geometry`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('constituency-geometry').textContent = data.value;
+    });
+}
+
+</script>
+<style>
+  .tag-badge {
+    text-decoration: none; /* Removes underline */
+  }
+
+  .tag-badge .badge {
+    color: white; /* Ensures text color is white */
+  }
+</style>

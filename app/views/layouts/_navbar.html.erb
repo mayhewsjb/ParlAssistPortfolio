@@ -1,0 +1,50 @@
+<% if user_signed_in? %>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <%= link_to 'ParlAssist', root_path, class: 'navbar-brand ms-5' %>
+    <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
+        <li class="nav-item">
+          <%= link_to 'People', people_path, class: 'nav-link' %>
+        </li>
+        <li class="nav-item">
+          <%= link_to 'All Updates', all_updates_path, class: 'nav-link' %>
+        </li>
+        <li class="nav-item">
+          <%= link_to 'All Committees', committees_path, class: 'nav-link' %>
+        </li>
+        <li class="nav-item">
+          <%= link_to 'All Tags', tags_path, class: 'nav-link' %>
+        </li>
+        <li class="nav-item">
+          <%= link_to 'User Management', users_path, class: 'nav-link' %>
+        </li>
+        <li class="nav-item">
+          <%= link_to 'All Regions', regions_path, class: 'nav-link' %>
+        </li>
+        <li class="nav-item">
+          <%= link_to 'Bugs', bugs_path, class: 'nav-link' %>
+        </li>
+      </ul>
+      <ul class="navbar-nav mx-4">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <%= current_user.name %>
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <li><%= link_to 'Edit Profile', edit_user_registration_path, class: 'dropdown-item' %></li>
+            <li>
+              <%= button_to 'Log out', destroy_user_session_path, method: :delete, class: 'dropdown-item' %>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
+<% else %>
+  <div class="text-center">
+    <h1>ParlAssist</h1>
+  </div>
+<% end %>

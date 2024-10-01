@@ -1,0 +1,41 @@
+<div class="container mt-3">
+  <h1>Updates</h1>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Content</th>
+        <th>Person</th>
+        <th>Added By</th>
+        <th>Comment Date</th>
+        <th colspan="3">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @updates.each do |update| %>
+        <tr>
+          <td><%= update.content %></td>
+          <td><%= link_to update.person.name, person_path(update.person) %></td>
+          <td><%= update.user.name %></td>
+          <td>
+            <% if update.content == 'Automatic Update ** Person created **' %>
+              <%= formatted_update_time(update.created_at) %>
+            <% else %>
+              <%= update.comment_date ? formatted_update_time(update.comment_date) : 'N/A' %>
+            <% end %>
+          </td>
+          <td><%= link_to 'Details', [update.person, update], class: 'btn btn-info btn-sm' %>
+          <% unless update.content == 'Automatic Update ** Person created **' %>
+            <%= link_to 'Edit', edit_person_update_path(update.person, update), class: 'btn btn-primary btn-sm' %>
+            <%= link_to 'Delete', [update.person, update], data: { turbo_method: :delete, turbo_confirm: 'Are you sure?', turbo_action: "replace", turbo_target: "person_updates_#{update.person.id}" }, class: 'btn btn-danger btn-sm' %>
+          <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+
+  </table>
+
+  <%= link_to 'New Update', new_person_update_path, class: 'btn btn-success' %>
+</div>

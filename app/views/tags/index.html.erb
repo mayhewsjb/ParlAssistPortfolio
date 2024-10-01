@@ -1,0 +1,29 @@
+<div class="container mt-4">
+  <h1>Tags</h1>
+  <p>If you'd like to create a tag, create them in the new update section of an MP</p>
+
+  <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Count</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @tags.each_with_index do |tag, index| %>
+        <tr>
+          <td><%= tag.name %></td>
+          <td><%= tag.updates.count %></td>
+          <td>
+            <%= link_to 'View', tag_path(tag), class: 'btn btn-secondary btn-sm', data: { turbo: false } %>
+            <%= link_to 'Edit', edit_tag_path(tag), class: 'btn btn-primary btn-sm' %>
+            <%= link_to 'Delete', tag, data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: 'btn btn-danger btn-sm' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+</div>

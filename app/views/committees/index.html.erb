@@ -1,0 +1,69 @@
+<div class="container mt-3">
+  <h1>All Committees</h1>
+
+  <%= form_with url: committees_path, method: :get, local: true do |form| %>
+    <div class="input-group mb-3">
+      <%= link_to "Clear", committees_path, class: 'btn btn-outline-secondary' %>
+      <%= form.text_field :search, value: params[:search], placeholder: "Search by committee name or person", class: "form-control", id: "searchField" %>
+      <button class="btn btn-outline-primary" type="submit">Search</button>
+    </div>
+  <% end %>
+
+  <% if @people.present? %>
+    <% @people.each do |person| %>
+      <div class="row mt-3">
+        <div class="col">
+          <h2><%= person.name %></h2>
+        </div>
+      </div>
+      <div class="row">
+        <% if person.committee_memberships.present? %>
+          <div class="col">
+            <h3>Present Committee Memberships</h3>
+            <ul>
+              <% person.committee_memberships.each do |membership| %>
+                <% if membership.end_date.nil? || membership.end_date > Time.now %>
+                  <li><%= link_to membership.committee.name, committee_path(membership.committee) %></li>
+                <% end %>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <% if person.committee_memberships.present? %>
+          <div class="col">
+            <h3>Past Committee Memberships</h3>
+            <ul>
+              <% person.committee_memberships.each do |membership| %>
+                <% if membership.end_date.present? && membership.end_date <= Time.now %>
+                  <li><%= link_to membership.committee.name, committee_path(membership.committee) %></li>
+                <% end %>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if @committees.present? %>
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @committees.each do |committee| %>
+          <tr>
+            <td><%= link_to committee.name, committee_path(committee) %></td>
+            <td>
+              <%= link_to 'Show', committee_path(committee), class: 'btn btn-primary' %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

@@ -1,0 +1,43 @@
+
+    <%= form_with(model: person, local: true, class: "needs-validation", novalidate: "") do |form| %>
+      <% if person.errors.any? %>
+        <div id="error_explanation" class="alert alert-danger">
+          <h2><%= pluralize(person.errors.count, "error") %> prohibited this person from being saved:</h2>
+          <ul>
+            <% person.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-group my-2">
+        <%= form.label :name, class: 'form-label' %>
+        <%= form.text_field :name, id: :person_name, class: 'form-control' %>
+      </div>
+
+      <div class="form-group mb-2">
+        <%= form.label :party, class: 'form-label' %>
+        <%= form.select :party, Person.parties.keys.map { |party| [party.titleize, party] }, { include_blank: true }, { id: :person_party, class: 'form-select' } %>
+      </div>
+
+      <div class="form-group mb-2">
+        <%= form.label :role, class: 'form-label' %>
+        <%= form.text_field :role, id: :person_role, class: 'form-control' %>
+      </div>
+
+      <div class="form-group mb-2">
+        <%= form.label :region_id, class: 'form-label' %>
+        <%= form.collection_select :region_id, Region.order(:name), :id, :name, { include_blank: true }, { id: :person_region_id, class: 'form-select' } %>
+      </div>
+
+
+      <div class="form-group mb-2">
+        <%= form.label :notes, class: 'form-label' %>
+        <%= form.text_area :notes, id: :person_notes, class: 'form-control' %>
+      </div>
+
+      <div class="actions mb-2">
+        <%= form.submit class: 'btn btn-primary' %>
+      </div>
+    <% end %>

@@ -1,0 +1,194 @@
+<div class="container mt-3">
+  <h1>People</h1>
+
+  <%= form_with url: people_path, method: :get, class: "mb-4", local: true, id: "filter-form" do |form| %>
+    <div class="input-group mb-3">
+      <%= link_to "Clear", people_path, class: 'btn btn-outline-secondary' %>
+      <%= form.text_field :search, value: params[:search], placeholder: "Search by name or constituency", class: "form-control", id: "searchField" %>
+      <button class="btn btn-outline-primary" type="submit">Search</button>
+    </div>
+
+    <div class="form-group mb-3">
+      <%= form.label :region_ids, 'Regions' %>
+      <div class="row">
+        <% Region.order(:name).each_with_index do |region, index| %>
+          <%# Start a new row for every 3 regions %>
+          <% if index % 3 == 0 && index != 0 %>
+            </div><div class="row">
+          <% end %>
+          <div class="col-md-4">
+            <div class="form-check">
+              <%= check_box_tag "region_ids[]", region.id, params[:region_ids]&.include?(region.id.to_s), id: "region_ids_#{region.id}", class: "form-check-input" %>
+              <%= label_tag "region_ids_#{region.id}", region.name.gsub(/\AGroup\s+\d+\s+/, ''), class: "form-check-label" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <hr>
+
+    <div class="row">
+      <div class="col-md-3">
+        <div class="form-group">
+          <%= form.label :majority_min, 'Majority Minimum' %>
+          <%= form.number_field :majority_min, value: params[:majority_min], class: 'form-control' %>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="form-group">
+          <%= form.label :majority_max, 'Majority Maximum' %>
+          <%= form.number_field :majority_max, value: params[:majority_max], class: 'form-control' %>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="form-group">
+          <%= form.label :start_date, 'Installation Date Min' %>
+          <%= form.date_field :start_date, value: params[:start_date], class: 'form-control' %>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="form-group">
+          <%= form.label :end_date, 'Installaton Date Max' %>
+          <%= form.date_field :end_date, value: params[:end_date], class: 'form-control' %>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="form-group">
+      <div><strong>Sort by:</strong></div>
+      <div class="row">
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'majority_asc', checked: params[:sort] == 'majority_asc', class: "form-check-input" %>
+          <%= form.label :sort_majority_asc, 'Majority (Ascending)', class: "form-check-label" %>
+        </div>
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'majority_desc', checked: params[:sort] == 'majority_desc', class: "form-check-input" %>
+          <%= form.label :sort_majority_desc, 'Majority (Descending)', class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'area_asc', checked: params[:sort] == 'area_asc', class: "form-check-input" %>
+          <%= form.label :sort_area_asc, 'Area (Ascending)', class: "form-check-label" %>
+        </div>
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'area_desc', checked: params[:sort] == 'area_desc', class: "form-check-input" %>
+          <%= form.label :sort_area_desc, 'Area (Descending)', class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'membership_start_asc', checked: params[:sort] == 'membership_start_asc', class: "form-check-input" %>
+          <%= form.label :sort_membership_start_asc, 'Membership Start (Oldest First)', class: "form-check-label" %>
+        </div>
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'membership_start_desc', checked: params[:sort] == 'membership_start_desc', class: "form-check-input" %>
+          <%= form.label :sort_membership_start_desc, 'Membership Start (Newest First)', class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'name_asc', checked: params[:sort] == 'name_asc', class: "form-check-input" %>
+          <%= form.label :sort_name_asc, 'Surname (A-Z)', class: "form-check-label" %>
+        </div>
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'name_desc', checked: params[:sort] == 'name_desc', class: "form-check-input" %>
+          <%= form.label :sort_name_desc, 'Surname (Z-A)', class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'constituency_asc', checked: params[:sort] == 'constituency_asc', class: "form-check-input" %>
+          <%= form.label :sort_constituency_asc, 'Constituency (A-Z)', class: "form-check-label" %>
+        </div>
+        <div class="col-md-6">
+          <%= form.radio_button :sort, 'constituency_desc', checked: params[:sort] == 'constituency_desc', class: "form-check-input" %>
+          <%= form.label :sort_constituency_desc, 'Constituency (Z-A)', class: "form-check-label" %>
+        </div>
+      </div>
+    </div>
+    <hr>
+
+    <h3>Filter by Tags</h3>
+    <div id="tags-checkboxes" class="mb-3">
+      <div class="row">
+        <% Tag.order(:name).each_with_index do |tag, index| %>
+          <%# Open a new column every third tag %>
+          <div class="col-md-4">
+            <div class="form-check">
+              <%= check_box_tag 'tag_ids[]', tag.id, params[:tag_ids]&.include?(tag.id.to_s), id: dom_id(tag), class: "form-check-input" %>
+              <%= label_tag dom_id(tag), tag.name, class: "form-check-label" %>
+            </div>
+          </div>
+
+          <%# Create a new row after every third tag %>
+          <% if (index + 1) % 3 == 0 && index + 1 != Tag.count %>
+            </div>
+            <div class="row">
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <%= form.submit 'Search', class: 'btn btn-primary' %>
+    <%= link_to 'Clear', people_path, class: 'btn btn-secondary ' %>
+    <button id="export-button" class="btn btn-danger">Export</button>
+    <p>Make sure to click search before clicking export</p>
+  <% end %>
+
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Constituency</th>
+          <th>Last Updated</th>
+          <th>Majority</th>
+          <th>Const Area (rough)</th>
+          <th>Start date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @people.each_with_index do |person, index| %>
+          <tr>
+            <td><%= link_to person.name, person_path(person) %></td>
+            <td><%= person.constituency || 'nil' %></td>
+            <td><%= person.updates.order(updated_at: :desc).first.try { |u| formatted_update_time(u.updated_at) } || 'N/A' %></td>
+            <td><%= person.majority %></td>
+            <td>
+              <% if @area_ranks[index].present? %>
+                <%= @area_ranks[index] %> out of <%= @area_rankings.count %>
+              <% else %>
+                No data
+              <% end %>
+            </td>
+            <td>
+              <%if person.membership_start_date.present? %>
+                <%= formatted_update_time(person.membership_start_date) %>
+              <%else%>
+                No data
+              <%end%>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <%= paginate @people %>
+</div>
+
+<script>
+  document.getElementById('export-button').addEventListener('click', function() {
+    var currentParams = window.location.search;
+    var exportUrl = '<%= export_people_path(format: :xlsx) %>' + currentParams;
+    window.location.href = exportUrl;
+  });
+</script>

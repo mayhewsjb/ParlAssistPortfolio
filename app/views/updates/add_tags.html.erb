@@ -1,0 +1,98 @@
+<div class="container mt-3">
+  <h2>Add Tags to Update</h2>
+  <%= form_with(model: [@person, @update], url: update_tags_person_update_path, method: :patch, class: "needs-validation", novalidate: true) do |form| %>
+    <div id="tags-checkboxes" class="mb-3">
+      <% Tag.order(:name).each do |tag| %> <!-- Sort tags alphabetically -->
+        <div class="form-check">
+          <%= check_box_tag 'update[tag_ids][]', tag.id, @update.tags.include?(tag), id: dom_id(tag), class: "form-check-input" %>
+          <%= label_tag dom_id(tag), tag.name, class: "form-check-label" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="new-tag mt-3">
+      <%= label_tag :new_tag_name, "Create new tag - must be unique", class: "form-label" %>
+      <div class="input-group mb-3">
+        <%= text_field_tag :new_tag_name, nil, placeholder: "Enter new tag name", class: "form-control", 'aria-label': "New tag name", 'aria-describedby': "button-add-tag" %>
+        <button class="btn btn-outline-secondary" type="button" id="button-add-tag" onclick="createNewTag()">Create</button>
+      </div>
+    </div>
+
+    <%= form.submit "Save Tags", class: 'btn btn-primary mb-2' %>
+  <% end %>
+</div>
+
+<script>
+  function createNewTag() {
+    const tagName = document.getElementById('new_tag_name').value;
+    if (!tagName.trim()) {
+      alert('Please enter a tag name.');
+      return;
+    }
+
+    fetch('/tags', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ tag: { name: tagName } })
+    })
+    .then(response => response.json())
+    .then(tag => {
+      if (tag.id) {
+        const tagsCheckboxes = document.getElementById('tags-checkboxes');
+        const div = document.createElement('div');
+        div.className = 'form-check';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `tag_${tag.id}`;
+        checkbox.name = 'update[tag_ids][]';
+        checkbox.value = tag.id;
+        checkbox.className = 'form-check-input';
+        checkbox.checked = true; // Automatically check the newly added tag
+
+        const label = document.createElement('label');
+        label.htmlFor = checkbox.id;
+        label.className = 'form-check-label';
+        label.textContent = tag.name;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+
+        // Insert the new tag in alphabetical order
+        const tagElements = [...tagsCheckboxes.getElementsByClassName('form-check')];
+        let inserted = false;
+        for (let i = 0; i < tagElements.length; i++) {
+          const currentTag = tagElements[i].querySelector('label').textContent;
+          if (tag.name.localeCompare(currentTag) < 0) {
+            tagsCheckboxes.insertBefore(div, tagElements[i]);
+            inserted = true;
+            break;
+          }
+        }
+        if (!inserted) {
+          tagsCheckboxes.appendChild(div); // If not inserted, append at the end
+        }
+
+        // Clear the input field after adding the tag
+        document.getElementById('new_tag_name').value = '';
+      } else {
+        alert('Error creating tag. It might already exist.');
+      }
+    })
+    .catch(error => {
+      console.error('Error creating tag:', error);
+      alert('Error creating tag. Please try again.');
+    });
+  }
+
+  // Prevent form submission on Enter keypress in the tag name input
+  document.getElementById('new_tag_name').addEventListener('keypress', function(event) {
+    if (event.keyCode === 13) { // Enter key code
+      event.preventDefault(); // Stop form submission
+      createNewTag();
+    }
+  });
+</script>

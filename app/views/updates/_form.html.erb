@@ -1,0 +1,110 @@
+<%= form_with(model: [@person, @update], local: true) do |form| %>
+  <% if update.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger">
+      <h2><%= pluralize(update.errors.count, "error") %> prohibited this update from being saved:</h2>
+      <ul>
+        <% update.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field mb-3">
+    <%= form.label :occasion %>
+    <%= form.text_field :occasion, id: :update_occasion, class: 'form-control' %>
+  </div>
+
+  <div class="field mb-3">
+    <%= form.label :comment_date %>
+    <%= form.date_field :comment_date, id: :update_comment_date, class: 'form-control' %>
+  </div>
+
+  <div class="field mb-3">
+    <%= form.label :content %>
+    <%= form.text_area :content, id: :update_content, class: 'form-control' %>
+  </div>
+
+  <div class="field mb-3">
+    <%= form.label :tags, "Select tags" %>
+    <%= hidden_field_tag "update[tag_ids][]", "" %>
+    <div id="tags-checkboxes">
+      <% Tag.all.each do |tag| %>
+        <div class="form-check">
+          <%= check_box_tag 'update[tag_ids][]', tag.id, @update.tags.include?(tag), id: dom_id(tag), class: "form-check-input" %>
+          <%= label_tag dom_id(tag), tag.name, class: "form-check-label" %>
+        </div>
+      <% end %>
+    </div>
+
+
+    <!-- New tag input and button -->
+    <div class="new-tag mt-3">
+      <%= label_tag :new_tag_name, "Create new tag - must be unique" %>
+      <div class="input-group mb-3">
+        <%= text_field_tag :new_tag_name, nil, placeholder: "Enter new tag name", class: "form-control", 'aria-label': "New tag name", 'aria-describedby': "button-add-tag", onkeypress: "checkEnter(event)" %>
+        <button class="btn btn-outline-secondary" type="button" id="button-add-tag" onclick="createNewTag()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Submit", class: 'btn btn-primary mb-2' %>
+  </div>
+<% end %>
+<script>
+function createNewTag() {
+  const tagName = document.getElementById('new_tag_name').value;
+  if (!tagName) {
+    alert('Please enter a tag name.');
+    return;
+  }
+
+  fetch('/tags', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    },
+    body: JSON.stringify({ tag: { name: tagName } })
+  })
+  .then(response => response.json())
+  .then(tag => {
+    if (tag.id) {
+      const tagsCheckboxes = document.getElementById('tags-checkboxes');
+      const div = document.createElement('div');
+      div.className = 'form-check';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = `tag_${tag.id}`;
+      checkbox.name = 'update[tag_ids][]';
+      checkbox.value = tag.id;
+      checkbox.className = 'form-check-input';
+      checkbox.checked = true; // Automatically check the newly added tag
+
+      const label = document.createElement('label');
+      label.htmlFor = checkbox.id;
+      label.className = 'form-check-label';
+      label.textContent = tag.name;
+
+      div.appendChild(checkbox);
+      div.appendChild(label);
+      tagsCheckboxes.appendChild(div);
+    } else {
+      alert('Error creating tag.');
+    }
+  })
+  .catch(error => {
+    console.error('Error creating tag:', error);
+  });
+}
+
+function checkEnter(event) {
+  if (event.keyCode === 13) { // 13 is the enter key
+    event.preventDefault(); // Prevent form submission
+    createNewTag();
+  }
+}
+
+</script>

@@ -1,0 +1,22 @@
+<div>
+  <h1>Bug Details</h1>
+
+  <p>
+    <strong>Title:</strong>
+    <%= @bug.title %>
+  </p>
+
+  <p>
+    <strong>Description:</strong>
+    <%= @bug.description %>
+  </p>
+
+  <p>
+    <strong>Reported by:</strong>
+    <%= @bug.user.email %>
+  </p>
+
+  <%= link_to 'Edit', edit_bug_path(@bug), class: 'btn btn-warning' %>
+  <%= link_to 'Back', bugs_path, class: 'btn btn-secondary' %>
+  <%= link_to 'Destroy', @bug, data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
+</div>

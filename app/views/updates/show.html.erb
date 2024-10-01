@@ -1,0 +1,25 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1>Update Details</h1>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Occasion: <%= @update.occasion %></h5>
+          <p class="card-text">Content: <%= @update.content %></p>
+          <p class="card-text">Comment Date: <%= @update.comment_date %></p>
+          <h5 class="card-text">
+            <strong>Tags:</strong>
+            <% @update.tags.each do |tag| %>
+              <%= link_to tag.name, tag_path(tag), class: "badge bg-primary text-decoration-none", title: tag.name %>
+            <% end %>
+          </h5>
+          <%= link_to "Edit", edit_person_update_path(@update.person, @update), class: "btn btn-primary me-2" %>
+          <%= link_to "Delete", person_update_path(@update.person, @update), method: :delete, data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "btn btn-danger" %>
+        </div>
+      </div>
+
+      <%= link_to 'Back', person_updates_path(@update.person), class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div>

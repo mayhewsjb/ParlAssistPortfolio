@@ -1,0 +1,27 @@
+<div class="container mt-3">
+  <h1>Bugs List</h1>
+  <%= link_to 'New Bug', new_bug_path, class: 'btn btn-primary' %>
+
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>User</th>
+        <th colspan="3">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @bugs.each do |bug| %>
+        <tr>
+          <td><%= bug.title %></td>
+          <td><%= bug.user.name %></td>
+          <td><%= link_to 'Show', bug, class: 'btn btn-info me-1' %>
+            <%= link_to 'Edit', edit_bug_path(bug), class: 'btn btn-warning me-1' %>
+            <%= link_to 'Destroy', bug, data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

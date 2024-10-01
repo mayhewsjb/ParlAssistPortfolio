@@ -1,0 +1,51 @@
+<div class="container mt-3">
+  <h1><%= @committee.name %></h1>
+
+  <div class="accordion" id="committeeMembersAccordion">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="currentMembersHeader">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#currentMembers" aria-expanded="true" aria-controls="currentMembers">
+          Current Members
+        </button>
+      </h2>
+      <div id="currentMembers" class="accordion-collapse collapse show" aria-labelledby="currentMembersHeader" data-bs-parent="#committeeMembersAccordion">
+        <div class="accordion-body">
+          <ul class="list-group list-group-flush">
+            <% @current_members.each do |member| %>
+              <li class="list-group-item">
+                <%= link_to member.name, person_path(member) %>
+                <% member.committee_memberships.where(committee: @committee).each do |membership| %>
+                  (Joined: <%= formatted_update_time(membership.start_date) %>)
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="pastMembersHeader">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pastMembers" aria-expanded="false" aria-controls="pastMembers">
+          Past Members
+        </button>
+      </h2>
+      <div id="pastMembers" class="accordion-collapse collapse" aria-labelledby="pastMembersHeader" data-bs-parent="#committeeMembersAccordion">
+        <div class="accordion-body">
+          <ul class="list-group list-group-flush">
+            <% @past_members.each do |member| %>
+              <li class="list-group-item">
+                <%= link_to member.name, person_path(member) %>
+                <% member.committee_memberships.where(committee: @committee).each do |membership| %>
+                  (From: <%= formatted_update_time(membership.start_date) %> To: <%= membership.end_date ? formatted_update_time(membership.end_date) : 'Present' %>)
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= link_to 'Back to Committees', committees_path, class: 'btn btn-link' %>
+</div>

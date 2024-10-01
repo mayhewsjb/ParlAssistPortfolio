@@ -1,0 +1,11 @@
+wb = xlsx_package.workbook
+
+wb.add_worksheet(name: "People") do |sheet|
+  sheet.add_row ["Name", "Constituency", "Majority", "Region", "Start Date"]
+
+  @people.each do |person|
+    # Use the ternary operator to check if person.region is present. If not, display a placeholder or empty string.
+    region_name = person.region.present? ? person.region.name : "No Region"
+    sheet.add_row [person.name, person.constituency, person.majority, region_name, person.membership_start_date]
+  end
+end

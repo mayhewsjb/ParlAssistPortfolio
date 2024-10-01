@@ -1,0 +1,20 @@
+<div class="container mt-3">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1 class="mb-3">Edit Notes for <%= @person.name %></h1>
+
+      <%= form_with(model: @person, url: update_notes_person_path(@person), method: :patch, local: true, class: "needs-validation", novalidate: "") do |form| %>
+        <div class="mb-3">
+          <%= form.label :notes, class: 'form-label' %>
+          <%= form.text_area :notes, class: 'form-control', rows: 6 %>
+        </div>
+
+        <div class="actions">
+          <%= form.submit "Save Notes", class: 'btn btn-primary' %>
+        </div>
+      <% end %>
+
+      <%= link_to 'Back', @person, class: 'btn btn-secondary mt-3' %>
+    </div>
+  </div>
+</div>

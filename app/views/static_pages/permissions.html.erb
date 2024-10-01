@@ -1,0 +1,25 @@
+<div class="container mt-3">
+  <h1 class="mb-4">Access Denied</h1>
+
+  <p class="mb-3">You need permission to access this site. Ask someone with permission to add you if you believe you should have access.</p>
+
+  <p class="mb-3">If permission has just been given and you are still on this page, <%= link_to 'click here.', people_path, class: '' %> If this link does not work, you do not have permission.</p>
+
+  <br>
+
+  <%= button_to 'Logout', destroy_user_session_path, method: :delete, class: 'btn btn-primary' %>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    setInterval(function() {
+      fetch('/refresh_permissions')
+        .then(response => response.json())
+        .then(data => {
+          if (data.has_permissions) {
+            window.location.href = '/'; // Redirect to the index page
+          }
+        })
+        .catch(error => console.error('Error refreshing permissions:', error));
+    }, 2000); // Refresh every 5000 milliseconds (5 seconds)
+  });
+</script>

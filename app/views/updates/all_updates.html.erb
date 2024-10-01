@@ -1,0 +1,48 @@
+<div class="container mt-3">
+  <h1 class="mb-3">All Updates</h1>
+  <% @updates.each do |update| %>
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <% if update.content == 'Automatic Update ** Person created **' %>
+            <%= formatted_update_time(update.created_at) %> by <%= update.user.name %>
+          <% else %>
+            <%= update.comment_date ? formatted_update_time(update.comment_date) : formatted_update_time(update.created_at) %> by <%= update.user.name %>
+          <% end %>
+        </div>
+        <% unless update.content == 'Automatic Update ** Person created **' %>
+          <div>
+            <%= link_to 'Details', person_update_path(update.person, update), class: 'btn btn-secondary btn-sm me-1' %>
+            <%= link_to 'Edit', edit_person_update_path(update.person, update), class: 'btn btn-primary btn-sm me-1' %>
+            <%= link_to 'Delete', [update.person, update], data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: 'btn btn-danger btn-sm' %>
+          </div>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <p class="card-title">
+          <strong><%= link_to update.person.name, person_path(update.person) %></strong><%= ' - ' + update.occasion if update.occasion.present? %>
+        </p>
+        <p class="card-text"><%= truncate(update.content, length: 100, separator: ' ') %></p>
+        <% if update.tags.any? %>
+          <div>
+            <% update.tags.each do |tag| %>
+              <%= link_to tag_path(tag), class: "tag-badge" do %>
+                <span class="badge bg-primary"><%= tag.name %></span>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  <%= paginate @updates %>  <!-- This line adds pagination controls -->
+</div>
+<style>
+  .tag-badge {
+    text-decoration: none; /* Removes underline */
+  }
+
+  .tag-badge .badge {
+    color: white; /* Ensures text color is white */
+  }
+</style>

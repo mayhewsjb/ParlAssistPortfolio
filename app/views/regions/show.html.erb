@@ -1,0 +1,18 @@
+<div class="container mt-3">
+  <h1><%= @region.name %></h1>
+  <h3>People in this Region:</h3>
+
+  <% if @people.any? %>
+    <div class="list-group">
+      <% @people.each do |person| %>
+        <!-- Update href to link to the person's show page -->
+        <a href="<%= person_path(person) %>" class="list-group-item list-group-item-action">
+          <%= person.name %>
+          <span class="ms-3 badge bg-secondary"><%= person.constituency %></span>
+        </a>
+      <% end %>
+    </div>
+  <% else %>
+    <p>No people found in this region.</p>
+  <% end %>
+</div>
